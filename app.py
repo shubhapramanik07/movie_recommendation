@@ -351,7 +351,7 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
             with colset[c]:
                 st.markdown('<div class="movie-card">', unsafe_allow_html=True)
                 if poster:
-                    st.image(poster, use_container_width=True)
+                    st.image(poster, use_column_width=True)
                 else:
                     st.markdown('<div style="height:200px;background:linear-gradient(135deg,#1a1a2e,#0f0f23);display:flex;align-items:center;justify-content:center;color:#444;font-size:2rem;">🎬</div>', unsafe_allow_html=True)
 
@@ -633,7 +633,7 @@ elif st.session_state.view == "details":
 
     with left:
         if data.get("poster_url"):
-            st.image(data["poster_url"], use_container_width=True)
+            st.image(data["poster_url"], use_column_width=True)
         else:
             st.markdown('<div style="height:300px;background:#222;display:flex;align-items:center;justify-content:center;color:#444;font-size:3rem;border-radius:4px;">🎬</div>', unsafe_allow_html=True)
 
