@@ -114,6 +114,20 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     opacity: 1;
 }
 
+/* Quick Nav Bar Buttons */
+.quick-nav .stButton > button {
+    background: transparent !important;
+    border: 1px solid #555 !important;
+    color: #e5e5e5 !important;
+    font-size: 0.85rem !important;
+    padding: 0.4rem 0.8rem !important;
+}
+.quick-nav .stButton > button:hover {
+    background: #333 !important;
+    border-color: #e50914 !important;
+    color: #fff !important;
+}
+
 /* Netflix Red Buttons */
 .stButton > button {
     background: #e50914 !important;
@@ -469,28 +483,28 @@ def parse_tmdb_search_to_cards(data, keyword: str, limit: int = 24):
 
 
 # =============================
-# SIDEBAR (Netflix Style)
+# SIDEBAR (Netflix Style) - Toggle Menu
 # =============================
 with st.sidebar:
     st.markdown("""
     <div class="brand-header">
-        <div class="brand-title">FLICKPICK</div>
+        <div class="brand-title">🎬 FLICKPICK</div>
         <div style="color:#808080;font-size:0.8rem;margin-top:0.5rem;">Unlimited movies, endless discovery</div>
     </div>
     """, unsafe_allow_html=True)
     
-    if st.button("▶ Home"):
+    if st.button("🏠 Home", use_container_width=True):
         goto_home()
 
     st.markdown("")
-    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;">Browse</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;">📂 Browse Categories</p>', unsafe_allow_html=True)
     
     category_labels = {
-        "trending": "Trending Now",
-        "popular": "Popular on FlickPick",
-        "top_rated": "Top 10 Today",
-        "now_playing": "New Releases",
-        "upcoming": "Coming This Week"
+        "trending": "🔥 Trending Now",
+        "popular": "⭐ Popular on FlickPick",
+        "top_rated": "🏆 Top 10 Today",
+        "now_playing": "🆕 New Releases",
+        "upcoming": "📅 Coming This Week"
     }
     home_category = st.selectbox(
         "Category",
@@ -500,8 +514,8 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     
-    st.markdown("")
-    st.markdown('<p style="color:#808080;font-size:0.85rem;">Grid Size</p>', unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;">⚙️ Display Settings</p>', unsafe_allow_html=True)
     grid_cols = st.slider("Grid columns", 4, 8, 6, label_visibility="collapsed")
     
     st.markdown("---")
@@ -521,12 +535,38 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# =============================
+# QUICK TOGGLE BAR (Top Navigation)
+# =============================
+quick_nav_cols = st.columns([1, 1, 1, 1, 1, 2])
+with quick_nav_cols[0]:
+    if st.button("🔥 Trending", use_container_width=True, key="nav_trending"):
+        st.session_state.quick_category = "trending"
+with quick_nav_cols[1]:
+    if st.button("⭐ Popular", use_container_width=True, key="nav_popular"):
+        st.session_state.quick_category = "popular"
+with quick_nav_cols[2]:
+    if st.button("🏆 Top 10", use_container_width=True, key="nav_top"):
+        st.session_state.quick_category = "top_rated"
+with quick_nav_cols[3]:
+    if st.button("🆕 New", use_container_width=True, key="nav_new"):
+        st.session_state.quick_category = "now_playing"
+with quick_nav_cols[4]:
+    if st.button("📅 Upcoming", use_container_width=True, key="nav_upcoming"):
+        st.session_state.quick_category = "upcoming"
+
+# Sync quick category with sidebar category
+if "quick_category" in st.session_state and st.session_state.quick_category:
+    home_category = st.session_state.quick_category
+
+st.markdown("")
+
 # ==========================================================
 # VIEW: HOME
 # ==========================================================
 if st.session_state.view == "home":
     typed = st.text_input(
-        "Search", placeholder="Titles, genres, people", label_visibility="collapsed"
+        "Search", placeholder="🔍 Search for titles, genres, people...", label_visibility="collapsed"
     )
 
     st.markdown("")
