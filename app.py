@@ -501,6 +501,13 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
         st.info("No movies to show.")
         return
 
+    # Filter out movies without poster images
+    cards = [c for c in cards if c.get("poster_url")]
+    
+    if not cards:
+        st.info("No movies with posters to show.")
+        return
+
     # Use CSS grid for better responsiveness
     st.markdown("""
     <style>
