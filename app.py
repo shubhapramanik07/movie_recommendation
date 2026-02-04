@@ -10,23 +10,45 @@ TMDB_IMG = "https://image.tmdb.org/t/p/w500"
 st.set_page_config(page_title="FlickPick | Movie Recommender", page_icon="🎬", layout="wide")
 
 # =============================
-# STYLES (Netflix-inspired Dark Theme)
+# STYLES (Netflix-inspired Dark Theme + Responsive)
 # =============================
 st.markdown(
     """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* Global */
+/* ========== RESPONSIVE BASE ========== */
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-.block-container { padding-top: 0.5rem; padding-bottom: 2rem; max-width: 100%; padding-left: 3rem; padding-right: 3rem; }
+
+/* Desktop */
+.block-container { 
+    padding-top: 0.5rem; 
+    padding-bottom: 2rem; 
+    max-width: 100%; 
+    padding-left: 2rem; 
+    padding-right: 2rem; 
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+    .block-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .block-container { padding-left: 0.75rem; padding-right: 0.75rem; padding-top: 0.25rem; }
+}
 
 /* Hide Streamlit branding */
 #MainMenu, footer, header { visibility: hidden; }
 
 /* Netflix black background */
-.stApp {
-    background: #141414;
+.stApp { background: #141414; }
+
+/* Hide sidebar on mobile */
+@media (max-width: 768px) {
+    [data-testid="stSidebar"] { display: none !important; }
+    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
 }
 
 /* Sidebar styling - Netflix dark */
@@ -40,13 +62,16 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     font-weight: 700;
 }
 
-/* Netflix Logo Style - Clean flat like Netflix */
+/* ========== LOGO ========== */
 .netflix-logo {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     color: #e50914;
     letter-spacing: 3px;
     font-weight: 400;
+}
+@media (max-width: 768px) {
+    .netflix-logo { font-size: 1.8rem; letter-spacing: 2px; }
 }
 
 /* Brand header */
@@ -64,101 +89,181 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     font-weight: 400;
 }
 
-/* Search box - Netflix style */
+/* ========== SEARCH BOX ========== */
 [data-testid="stTextInput"] input {
     background: #333 !important;
     border: 1px solid #555 !important;
-    border-radius: 4px !important;
+    border-radius: 8px !important;
     color: white !important;
     padding: 0.75rem 1rem !important;
     font-size: 1rem !important;
     transition: all 0.3s ease !important;
 }
 [data-testid="stTextInput"] input:focus {
-    border-color: #fff !important;
-    box-shadow: none !important;
+    border-color: #e50914 !important;
+    box-shadow: 0 0 0 2px rgba(229,9,20,0.2) !important;
     background: #454545 !important;
 }
-[data-testid="stTextInput"] input::placeholder { color: #999 !important; }
+[data-testid="stTextInput"] input::placeholder { color: #888 !important; }
 
-/* Movie cards - Netflix hover effect */
+/* ========== MOVIE CARDS - RESPONSIVE ========== */
 .movie-card {
-    background: transparent;
-    border-radius: 4px;
+    background: #1a1a1a;
+    border-radius: 8px;
     overflow: hidden;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
+    aspect-ratio: 2/3;
 }
 .movie-card:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
     z-index: 10;
-    box-shadow: 0 14px 36px rgba(0,0,0,0.75);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 .movie-card img {
-    border-radius: 4px;
+    border-radius: 8px;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
 }
 .movie-title {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
     line-height: 1.3;
-    height: auto;
-    max-height: 2.4rem;
-    overflow: hidden;
     color: #e5e5e5;
     padding: 0.5rem 0.25rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.movie-card:hover .movie-title {
-    opacity: 1;
-}
-
-/* Toggle Menu Button */
-[data-testid="stButton"] button[kind="secondary"] {
-    background: transparent !important;
-    border: 1px solid #555 !important;
-    color: #e5e5e5 !important;
-}
-[data-testid="stButton"] button[kind="secondary"]:hover {
-    background: #333 !important;
-    border-color: #e50914 !important;
+@media (max-width: 768px) {
+    .movie-card { border-radius: 6px; }
+    .movie-card:hover { transform: scale(1.02); }
+    .movie-title { font-size: 0.7rem; padding: 0.3rem 0.15rem; }
 }
 
-/* Netflix Red Buttons */
+/* ========== BUTTONS ========== */
 .stButton > button {
     background: #e50914 !important;
     color: white !important;
     border: none !important;
-    border-radius: 4px !important;
-    padding: 0.5rem 1.2rem !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 1rem !important;
     font-weight: 600 !important;
+    font-size: 0.85rem !important;
     transition: all 0.2s ease !important;
-    width: 100% !important;
 }
 .stButton > button:hover {
     background: #f40612 !important;
     transform: scale(1.02) !important;
 }
+@media (max-width: 768px) {
+    .stButton > button {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.75rem !important;
+        border-radius: 4px !important;
+    }
+}
 
-/* Section headers - Netflix style */
+/* ========== FLOATING MENU BUTTON ========== */
+.floating-menu-btn {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #e50914 0%, #b20710 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.5rem !important;
+    cursor: pointer !important;
+}
+@media (max-width: 768px) {
+    .floating-menu-btn {
+        bottom: 15px !important;
+        right: 15px !important;
+        width: 50px !important;
+        height: 50px !important;
+    }
+}
+
+/* ========== TOGGLE MENU PANEL ========== */
+.toggle-panel {
+    background: rgba(20, 20, 20, 0.98);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+.toggle-panel-title {
+    color: #e50914;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+@media (max-width: 768px) {
+    .toggle-panel { padding: 0.75rem; border-radius: 8px; }
+    .toggle-panel-title { font-size: 0.75rem; }
+}
+
+/* ========== CATEGORY BUTTONS ========== */
+.cat-btn {
+    background: #252525 !important;
+    border: 1px solid #444 !important;
+    color: #e5e5e5 !important;
+    border-radius: 20px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+.cat-btn:hover {
+    background: #e50914 !important;
+    border-color: #e50914 !important;
+    color: white !important;
+}
+@media (max-width: 768px) {
+    .cat-btn {
+        padding: 0.4rem 0.7rem !important;
+        font-size: 0.7rem !important;
+        border-radius: 15px !important;
+    }
+}
+
+/* ========== SECTION HEADERS ========== */
 .section-header {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: #e5e5e5;
-    margin: 2rem 0 1rem;
+    margin: 1.5rem 0 1rem;
     padding: 0;
     border: none;
     background: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 .section-header::before {
     content: '';
     display: inline-block;
     width: 4px;
-    height: 1.2rem;
+    height: 1.1rem;
     background: #e50914;
-    margin-right: 0.75rem;
-    vertical-align: middle;
+    border-radius: 2px;
+}
+@media (max-width: 768px) {
+    .section-header { font-size: 1rem; margin: 1rem 0 0.75rem; }
+    .section-header::before { width: 3px; height: 0.9rem; }
 }
 
 /* Details card - Netflix dark */
@@ -168,25 +273,25 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     padding: 1.5rem;
     border: 1px solid #333;
 }
+@media (max-width: 768px) {
+    .details-card { padding: 1rem; border-radius: 6px; }
+}
 
 /* Genre pills - Netflix tags */
 .genre-pill {
     display: inline-block;
-    background: transparent;
+    background: #252525;
     color: #46d369;
-    padding: 0.3rem 0;
-    font-size: 0.9rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    margin-right: 0.5rem;
+    margin-right: 0.4rem;
+    margin-bottom: 0.4rem;
+    border-radius: 4px;
     border: none;
 }
-.genre-pill::after {
-    content: ' •';
-    color: #666;
-    margin-left: 0.5rem;
-}
-.genre-pill:last-child::after {
-    content: '';
+@media (max-width: 768px) {
+    .genre-pill { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
 }
 
 /* Info badge - Netflix match style */
@@ -219,24 +324,28 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 /* Footer - Netflix minimal */
 .footer {
     text-align: center;
-    padding: 3rem 0;
-    margin-top: 3rem;
+    padding: 2rem 0;
+    margin-top: 2rem;
     border-top: 1px solid #333;
     color: #666;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 .footer-brand {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: #e50914;
     letter-spacing: 2px;
+}
+@media (max-width: 768px) {
+    .footer { padding: 1.5rem 0; margin-top: 1.5rem; font-size: 0.7rem; }
+    .footer-brand { font-size: 1.1rem; }
 }
 
 /* Selectbox styling */
 [data-testid="stSelectbox"] > div > div {
     background: #333 !important;
     border: 1px solid #555 !important;
-    border-radius: 4px !important;
+    border-radius: 6px !important;
     color: white !important;
 }
 
@@ -354,9 +463,33 @@ def api_get_json(path: str, params=None):
 
 
 def poster_grid(cards, cols=6, key_prefix="grid"):
+    """Responsive poster grid - automatically adjusts for mobile"""
     if not cards:
         st.info("No movies to show.")
         return
+
+    # Use CSS grid for better responsiveness
+    st.markdown("""
+    <style>
+    .poster-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
+    }
+    @media (max-width: 1200px) {
+        .poster-grid { grid-template-columns: repeat(5, 1fr); gap: 0.8rem; }
+    }
+    @media (max-width: 992px) {
+        .poster-grid { grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+    }
+    @media (max-width: 768px) {
+        .poster-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    }
+    @media (max-width: 480px) {
+        .poster-grid { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     rows = (len(cards) + cols - 1) // cols
     idx = 0
@@ -377,15 +510,18 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
                 if poster:
                     st.image(poster, use_container_width=True)
                 else:
-                    st.markdown('<div style="height:200px;background:linear-gradient(135deg,#1a1a2e,#0f0f23);display:flex;align-items:center;justify-content:center;color:#444;font-size:2rem;">🎬</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="aspect-ratio:2/3;background:linear-gradient(135deg,#252525,#1a1a1a);display:flex;align-items:center;justify-content:center;color:#444;font-size:1.5rem;border-radius:6px;">🎬</div>', unsafe_allow_html=True)
 
-                if st.button("▶ View", key=f"{key_prefix}_{r}_{c}_{idx}_{tmdb_id}"):
+                if st.button("▶", key=f"{key_prefix}_{r}_{c}_{idx}_{tmdb_id}", help=f"View {title}"):
                     if tmdb_id:
                         goto_details(tmdb_id)
 
+                # Truncate title for mobile
+                short_title = title[:25] + "..." if len(title) > 25 else title
                 st.markdown(
-                    f"<div class='movie-title'>{title}</div>", unsafe_allow_html=True
+                    f"<div class='movie-title' title='{title}'>{short_title}</div>", unsafe_allow_html=True
                 )
+                st.markdown('</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -594,6 +730,11 @@ st.markdown("""
     background: #e50914;
     color: white;
 }
+
+/* Responsive menu button */
+@media (max-width: 768px) {
+    .menu-item { padding: 0.5rem 0.6rem; font-size: 0.85rem; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -601,55 +742,72 @@ st.markdown("""
 if "menu_open" not in st.session_state:
     st.session_state.menu_open = False
 
-# Header with floating menu button
-col_header, col_toggle = st.columns([6, 1])
+# Header with floating menu button - Responsive
+st.markdown("""
+<style>
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0 1rem;
+}
+@media (max-width: 768px) {
+    .header-row { padding: 0.25rem 0 0.5rem; }
+}
+</style>
+""", unsafe_allow_html=True)
+
+col_header, col_toggle = st.columns([5, 1])
 with col_header:
     st.markdown("""
-    <div style="padding:0.5rem 0 1rem;">
+    <div style="padding:0.25rem 0;">
         <span class="netflix-logo">FLICKPICK</span>
     </div>
     """, unsafe_allow_html=True)
 
 with col_toggle:
-    if st.button("☰ Menu", key="toggle_menu_btn", use_container_width=True):
+    menu_label = "✕" if st.session_state.menu_open else "☰"
+    if st.button(menu_label, key="toggle_menu_btn", use_container_width=True):
         st.session_state.menu_open = not st.session_state.menu_open
+        st.rerun()
 
 # Show toggle menu when open
 if st.session_state.menu_open:
-    with st.container():
-        st.markdown("""
-        <div style="background:rgba(20,20,20,0.95);border:1px solid #333;border-radius:12px;padding:1rem;margin-bottom:1rem;">
-            <h4 style="color:#e50914;margin:0 0 0.75rem 0;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;">📂 Browse Categories</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        menu_cols = st.columns(5)
-        with menu_cols[0]:
-            if st.button("🔥 Trending", key="menu_trending", use_container_width=True):
-                st.session_state.quick_category = "trending"
-                st.session_state.menu_open = False
-                st.rerun()
-        with menu_cols[1]:
-            if st.button("⭐ Popular", key="menu_popular", use_container_width=True):
-                st.session_state.quick_category = "popular"
-                st.session_state.menu_open = False
-                st.rerun()
-        with menu_cols[2]:
-            if st.button("🏆 Top 10", key="menu_top", use_container_width=True):
-                st.session_state.quick_category = "top_rated"
-                st.session_state.menu_open = False
-                st.rerun()
-        with menu_cols[3]:
-            if st.button("🆕 New", key="menu_new", use_container_width=True):
-                st.session_state.quick_category = "now_playing"
-                st.session_state.menu_open = False
-                st.rerun()
-        with menu_cols[4]:
-            if st.button("📅 Upcoming", key="menu_upcoming", use_container_width=True):
-                st.session_state.quick_category = "upcoming"
-                st.session_state.menu_open = False
-                st.rerun()
-        
+    st.markdown("""
+    <div class="toggle-panel">
+        <div class="toggle-panel-title">📂 Browse Categories</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Responsive menu - 3 columns on mobile, 5 on desktop
+    menu_cols = st.columns([1, 1, 1, 1, 1])
+    with menu_cols[0]:
+        if st.button("🔥 Trending", key="menu_trending", use_container_width=True):
+            st.session_state.quick_category = "trending"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[1]:
+        if st.button("⭐ Popular", key="menu_popular", use_container_width=True):
+            st.session_state.quick_category = "popular"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[2]:
+        if st.button("🏆 Top 10", key="menu_top", use_container_width=True):
+            st.session_state.quick_category = "top_rated"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[3]:
+        if st.button("🆕 New", key="menu_new", use_container_width=True):
+            st.session_state.quick_category = "now_playing"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[4]:
+        if st.button("📅 Upcoming", key="menu_upcoming", use_container_width=True):
+            st.session_state.quick_category = "upcoming"
+            st.session_state.menu_open = False
+            st.rerun()
+    
+    st.markdown("")
         st.markdown("")
 
 # Sync quick category with sidebar category
