@@ -114,18 +114,15 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     opacity: 1;
 }
 
-/* Quick Nav Bar Buttons */
-.quick-nav .stButton > button {
+/* Toggle Menu Button */
+[data-testid="stButton"] button[kind="secondary"] {
     background: transparent !important;
     border: 1px solid #555 !important;
     color: #e5e5e5 !important;
-    font-size: 0.85rem !important;
-    padding: 0.4rem 0.8rem !important;
 }
-.quick-nav .stButton > button:hover {
+[data-testid="stButton"] button[kind="secondary"]:hover {
     background: #333 !important;
     border-color: #e50914 !important;
-    color: #fff !important;
 }
 
 /* Netflix Red Buttons */
@@ -527,39 +524,137 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # =============================
-# HEADER (Netflix Style)
+# FLOATING TOGGLE MENU (Netflix Style)
 # =============================
+# Add floating menu CSS
 st.markdown("""
-<div style="padding:0.5rem 0 1.5rem;">
-    <span class="netflix-logo">FLICKPICK</span>
-</div>
+<style>
+/* Floating Toggle Button */
+.floating-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+.floating-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(229, 9, 20, 0.7);
+}
+
+/* Toggle Menu Panel */
+.toggle-menu-panel {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    z-index: 9998;
+    background: rgba(20, 20, 20, 0.98);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 1rem;
+    min-width: 200px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+}
+.toggle-menu-panel h4 {
+    color: #e50914;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.menu-item {
+    display: block;
+    padding: 0.6rem 0.8rem;
+    color: #e5e5e5;
+    text-decoration: none;
+    border-radius: 6px;
+    margin: 0.25rem 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+.menu-item:hover {
+    background: #333;
+    color: #fff;
+    padding-left: 1rem;
+}
+.menu-item.active {
+    background: #e50914;
+    color: white;
+}
+</style>
 """, unsafe_allow_html=True)
 
-# =============================
-# QUICK TOGGLE BAR (Top Navigation)
-# =============================
-quick_nav_cols = st.columns([1, 1, 1, 1, 1, 2])
-with quick_nav_cols[0]:
-    if st.button("🔥 Trending", use_container_width=True, key="nav_trending"):
-        st.session_state.quick_category = "trending"
-with quick_nav_cols[1]:
-    if st.button("⭐ Popular", use_container_width=True, key="nav_popular"):
-        st.session_state.quick_category = "popular"
-with quick_nav_cols[2]:
-    if st.button("🏆 Top 10", use_container_width=True, key="nav_top"):
-        st.session_state.quick_category = "top_rated"
-with quick_nav_cols[3]:
-    if st.button("🆕 New", use_container_width=True, key="nav_new"):
-        st.session_state.quick_category = "now_playing"
-with quick_nav_cols[4]:
-    if st.button("📅 Upcoming", use_container_width=True, key="nav_upcoming"):
-        st.session_state.quick_category = "upcoming"
+# Initialize toggle state
+if "menu_open" not in st.session_state:
+    st.session_state.menu_open = False
+
+# Header with floating menu button
+col_header, col_toggle = st.columns([6, 1])
+with col_header:
+    st.markdown("""
+    <div style="padding:0.5rem 0 1rem;">
+        <span class="netflix-logo">FLICKPICK</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_toggle:
+    if st.button("☰ Menu", key="toggle_menu_btn", use_container_width=True):
+        st.session_state.menu_open = not st.session_state.menu_open
+
+# Show toggle menu when open
+if st.session_state.menu_open:
+    with st.container():
+        st.markdown("""
+        <div style="background:rgba(20,20,20,0.95);border:1px solid #333;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+            <h4 style="color:#e50914;margin:0 0 0.75rem 0;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;">📂 Browse Categories</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        menu_cols = st.columns(5)
+        with menu_cols[0]:
+            if st.button("🔥 Trending", key="menu_trending", use_container_width=True):
+                st.session_state.quick_category = "trending"
+                st.session_state.menu_open = False
+                st.rerun()
+        with menu_cols[1]:
+            if st.button("⭐ Popular", key="menu_popular", use_container_width=True):
+                st.session_state.quick_category = "popular"
+                st.session_state.menu_open = False
+                st.rerun()
+        with menu_cols[2]:
+            if st.button("🏆 Top 10", key="menu_top", use_container_width=True):
+                st.session_state.quick_category = "top_rated"
+                st.session_state.menu_open = False
+                st.rerun()
+        with menu_cols[3]:
+            if st.button("🆕 New", key="menu_new", use_container_width=True):
+                st.session_state.quick_category = "now_playing"
+                st.session_state.menu_open = False
+                st.rerun()
+        with menu_cols[4]:
+            if st.button("📅 Upcoming", key="menu_upcoming", use_container_width=True):
+                st.session_state.quick_category = "upcoming"
+                st.session_state.menu_open = False
+                st.rerun()
+        
+        st.markdown("")
 
 # Sync quick category with sidebar category
 if "quick_category" in st.session_state and st.session_state.quick_category:
     home_category = st.session_state.quick_category
-
-st.markdown("")
 
 # ==========================================================
 # VIEW: HOME
