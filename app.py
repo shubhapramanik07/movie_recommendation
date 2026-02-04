@@ -60,9 +60,21 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     font-weight: 700;
 }
 
-/* Sidebar collapse button styling */
+/* Sidebar collapse/expand button - Make VERY visible */
 [data-testid="stSidebarCollapsedControl"] {
-    color: #e50914 !important;
+    background: #e50914 !important;
+    border-radius: 0 8px 8px 0 !important;
+    padding: 0.5rem !important;
+    color: white !important;
+}
+[data-testid="stSidebarCollapsedControl"]:hover {
+    background: #b20710 !important;
+}
+[data-testid="stSidebarCollapsedControl"] svg {
+    width: 24px !important;
+    height: 24px !important;
+    fill: white !important;
+    stroke: white !important;
 }
 button[kind="header"] {
     color: #e50914 !important;
