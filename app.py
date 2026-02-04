@@ -332,10 +332,12 @@ def goto_details(tmdb_id: int):
 @st.cache_data(ttl=30)  # short cache for autocomplete
 def api_get_json(path: str, params=None):
     try:
-        r = requests.get(f"{API_BASE}{path}", params=params, timeout=25)
+        r = requests.get(f"{API_BASE}{path}", params=params, timeout=60)
         if r.status_code >= 400:
             return None, f"HTTP {r.status_code}: {r.text[:300]}"
         return r.json(), None
+    except requests.exceptions.Timeout:
+        return None, "TIMEOUT"
     except Exception as e:
         return None, f"Request failed: {e}"
 
@@ -582,7 +584,14 @@ if st.session_state.view == "home":
         "/home", params={"category": home_category, "limit": 24}
     )
     if err or not home_cards:
-        st.error(f"Home feed failed: {err or 'Unknown error'}")
+        if err == "TIMEOUT":
+            st.warning("⏳ **Server is waking up...** Please wait 30-60 seconds and refresh the page. (Free tier servers sleep after inactivity)")
+        else:
+            st.error(f"Home feed failed: {err or 'Unknown error'}")
+        st.info("💡 **Tip:** The backend server on Render's free tier goes to sleep after 15 minutes of inactivity. It takes about 30-60 seconds to wake up.")
+        if st.button("🔄 Retry"):
+            st.cache_data.clear()
+            st.rerun()
         st.stop()
 
     poster_grid(home_cards, cols=grid_cols, key_prefix="home_feed")
