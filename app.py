@@ -808,7 +808,6 @@ if st.session_state.menu_open:
             st.rerun()
     
     st.markdown("")
-        st.markdown("")
 
 # Sync quick category with sidebar category
 if "quick_category" in st.session_state and st.session_state.quick_category:
