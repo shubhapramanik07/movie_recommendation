@@ -7,7 +7,7 @@ import streamlit as st
 API_BASE = "https://movie-recommendation-3-hvyy.onrender.com" or "http://127.0.0.1:8000"
 TMDB_IMG = "https://image.tmdb.org/t/p/w500"
 
-st.set_page_config(page_title="FlickPick | Movie Recommender", page_icon="🎬", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="FlickPick | Movie Recommender", page_icon="🎬", layout="wide")
 
 # =============================
 # STYLES (Netflix-inspired Dark Theme + Responsive)
@@ -45,50 +45,21 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 /* Netflix black background */
 .stApp { background: #141414; }
 
-/* ========== SIDEBAR - Netflix Style ========== */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #000000 0%, #141414 100%) !important;
-    border-right: 1px solid #333 !important;
-    padding-top: 1rem;
+/* Hide sidebar on mobile */
+@media (max-width: 768px) {
+    [data-testid="stSidebar"] { display: none !important; }
+    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
 }
-[data-testid="stSidebar"] > div:first-child {
-    background: transparent !important;
+
+/* Sidebar styling - Netflix dark */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #000000 0%, #141414 100%);
+    border-right: 1px solid #333;
 }
 [data-testid="stSidebar"] .stMarkdown { color: #e5e5e5; }
 [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { 
     color: #e50914;
     font-weight: 700;
-}
-
-/* Sidebar collapse/expand button - Make VERY visible */
-[data-testid="stSidebarCollapsedControl"] {
-    background: #e50914 !important;
-    border-radius: 0 8px 8px 0 !important;
-    padding: 0.5rem !important;
-    color: white !important;
-}
-[data-testid="stSidebarCollapsedControl"]:hover {
-    background: #b20710 !important;
-}
-[data-testid="stSidebarCollapsedControl"] svg {
-    width: 24px !important;
-    height: 24px !important;
-    fill: white !important;
-    stroke: white !important;
-}
-button[kind="header"] {
-    color: #e50914 !important;
-}
-
-/* Mobile sidebar - full overlay */
-@media (max-width: 768px) {
-    [data-testid="stSidebar"] {
-        width: 85% !important;
-        max-width: 300px !important;
-    }
-    [data-testid="stSidebar"] > div {
-        width: 100% !important;
-    }
 }
 
 /* ========== LOGO ========== */
@@ -106,20 +77,16 @@ button[kind="header"] {
 /* Brand header */
 .brand-header {
     text-align: center;
-    padding: 1rem 0;
+    padding: 1.5rem 0;
     margin-bottom: 1rem;
     border-bottom: 1px solid #333;
 }
 .brand-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
+    font-size: 2rem;
     color: #e50914;
     letter-spacing: 3px;
     font-weight: 400;
-}
-@media (max-width: 768px) {
-    .brand-title { font-size: 1.5rem; }
-    .brand-header { padding: 0.75rem 0; }
 }
 
 /* ========== SEARCH BOX ========== */
@@ -501,13 +468,6 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
         st.info("No movies to show.")
         return
 
-    # Filter out movies without poster images
-    cards = [c for c in cards if c.get("poster_url")]
-    
-    if not cards:
-        st.info("No movies with posters to show.")
-        return
-
     # Use CSS grid for better responsiveness
     st.markdown("""
     <style>
@@ -548,17 +508,11 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
             with colset[c]:
                 st.markdown('<div class="movie-card">', unsafe_allow_html=True)
                 if poster:
-                    # HTML img with shimmer loading background
-                    st.markdown(f'''
-                    <div style="aspect-ratio:2/3;background:linear-gradient(90deg,#1a1a1a 25%,#2a2a2a 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;overflow:hidden;">
-                        <img src="{poster}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" loading="lazy" alt="{title}"/>
-                    </div>
-                    <style>@keyframes shimmer {{ 0% {{ background-position: -200% 0; }} 100% {{ background-position: 200% 0; }} }}</style>
-                    ''', unsafe_allow_html=True)
+                    st.image(poster, use_container_width=True)
                 else:
                     st.markdown('<div style="aspect-ratio:2/3;background:linear-gradient(135deg,#252525,#1a1a1a);display:flex;align-items:center;justify-content:center;color:#444;font-size:1.5rem;border-radius:6px;">🎬</div>', unsafe_allow_html=True)
 
-                if st.button("▶ View", key=f"{key_prefix}_{r}_{c}_{idx}_{tmdb_id}", help=f"View {title}", use_container_width=True):
+                if st.button("▶", key=f"{key_prefix}_{r}_{c}_{idx}_{tmdb_id}", help=f"View {title}"):
                     if tmdb_id:
                         goto_details(tmdb_id)
 
@@ -661,25 +615,22 @@ def parse_tmdb_search_to_cards(data, keyword: str, limit: int = 24):
     return suggestions, cards
 
 
-# Default grid columns
-grid_cols = 6
-
 # =============================
-# SIDEBAR (Netflix Style)
+# SIDEBAR (Netflix Style) - Toggle Menu
 # =============================
 with st.sidebar:
     st.markdown("""
     <div class="brand-header">
         <div class="brand-title">🎬 FLICKPICK</div>
-        <div style="color:#808080;font-size:0.75rem;margin-top:0.5rem;">Unlimited movies, endless discovery</div>
+        <div style="color:#808080;font-size:0.8rem;margin-top:0.5rem;">Unlimited movies, endless discovery</div>
     </div>
     """, unsafe_allow_html=True)
     
-    if st.button("🏠 Home", use_container_width=True, key="sidebar_home"):
+    if st.button("🏠 Home", use_container_width=True):
         goto_home()
 
     st.markdown("")
-    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;font-size:0.9rem;">📂 Browse Categories</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;">📂 Browse Categories</p>', unsafe_allow_html=True)
     
     category_labels = {
         "trending": "🔥 Trending Now",
@@ -697,25 +648,168 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;font-size:0.9rem;">⚙️ Display Settings</p>', unsafe_allow_html=True)
-    grid_cols = st.slider("Grid columns", 3, 8, 6, label_visibility="collapsed")
+    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;">⚙️ Display Settings</p>', unsafe_allow_html=True)
+    grid_cols = st.slider("Grid columns", 4, 8, 6, label_visibility="collapsed")
     
     st.markdown("---")
     st.markdown("""
-    <div style="padding:0.75rem 0;">
-        <div style="color:#808080;font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;">Powered by</div>
-        <div style="color:#e5e5e5;font-size:0.8rem;margin-top:0.25rem;">TMDB • TF-IDF AI</div>
+    <div style="padding:1rem 0;">
+        <div style="color:#808080;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Powered by</div>
+        <div style="color:#e5e5e5;font-size:0.85rem;margin-top:0.25rem;">TMDB • TF-IDF AI</div>
     </div>
     """, unsafe_allow_html=True)
 
 # =============================
-# HEADER
+# FLOATING TOGGLE MENU (Netflix Style)
 # =============================
+# Add floating menu CSS
 st.markdown("""
-<div style="padding:0.25rem 0 1rem;">
-    <span class="netflix-logo">FLICKPICK</span>
-</div>
+<style>
+/* Floating Toggle Button */
+.floating-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+.floating-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(229, 9, 20, 0.7);
+}
+
+/* Toggle Menu Panel */
+.toggle-menu-panel {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    z-index: 9998;
+    background: rgba(20, 20, 20, 0.98);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 1rem;
+    min-width: 200px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+}
+.toggle-menu-panel h4 {
+    color: #e50914;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.menu-item {
+    display: block;
+    padding: 0.6rem 0.8rem;
+    color: #e5e5e5;
+    text-decoration: none;
+    border-radius: 6px;
+    margin: 0.25rem 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+.menu-item:hover {
+    background: #333;
+    color: #fff;
+    padding-left: 1rem;
+}
+.menu-item.active {
+    background: #e50914;
+    color: white;
+}
+
+/* Responsive menu button */
+@media (max-width: 768px) {
+    .menu-item { padding: 0.5rem 0.6rem; font-size: 0.85rem; }
+}
+</style>
 """, unsafe_allow_html=True)
+
+# Initialize toggle state
+if "menu_open" not in st.session_state:
+    st.session_state.menu_open = False
+
+# Header with floating menu button - Responsive
+st.markdown("""
+<style>
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0 1rem;
+}
+@media (max-width: 768px) {
+    .header-row { padding: 0.25rem 0 0.5rem; }
+}
+</style>
+""", unsafe_allow_html=True)
+
+col_header, col_toggle = st.columns([5, 1])
+with col_header:
+    st.markdown("""
+    <div style="padding:0.25rem 0;">
+        <span class="netflix-logo">FLICKPICK</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_toggle:
+    menu_label = "✕" if st.session_state.menu_open else "☰"
+    if st.button(menu_label, key="toggle_menu_btn", use_container_width=True):
+        st.session_state.menu_open = not st.session_state.menu_open
+        st.rerun()
+
+# Show toggle menu when open
+if st.session_state.menu_open:
+    st.markdown("""
+    <div class="toggle-panel">
+        <div class="toggle-panel-title">📂 Browse Categories</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Responsive menu - 3 columns on mobile, 5 on desktop
+    menu_cols = st.columns([1, 1, 1, 1, 1])
+    with menu_cols[0]:
+        if st.button("🔥 Trending", key="menu_trending", use_container_width=True):
+            st.session_state.quick_category = "trending"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[1]:
+        if st.button("⭐ Popular", key="menu_popular", use_container_width=True):
+            st.session_state.quick_category = "popular"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[2]:
+        if st.button("🏆 Top 10", key="menu_top", use_container_width=True):
+            st.session_state.quick_category = "top_rated"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[3]:
+        if st.button("🆕 New", key="menu_new", use_container_width=True):
+            st.session_state.quick_category = "now_playing"
+            st.session_state.menu_open = False
+            st.rerun()
+    with menu_cols[4]:
+        if st.button("📅 Upcoming", key="menu_upcoming", use_container_width=True):
+            st.session_state.quick_category = "upcoming"
+            st.session_state.menu_open = False
+            st.rerun()
+
+# Sync quick category with sidebar category
+if "quick_category" in st.session_state and st.session_state.quick_category:
+    home_category = st.session_state.quick_category
 
 # ==========================================================
 # VIEW: HOME
