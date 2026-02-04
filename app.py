@@ -541,11 +541,17 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
             with colset[c]:
                 st.markdown('<div class="movie-card">', unsafe_allow_html=True)
                 if poster:
-                    st.image(poster, use_container_width=True)
+                    # HTML img with shimmer loading background
+                    st.markdown(f'''
+                    <div style="aspect-ratio:2/3;background:linear-gradient(90deg,#1a1a1a 25%,#2a2a2a 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;overflow:hidden;">
+                        <img src="{poster}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" loading="lazy" alt="{title}"/>
+                    </div>
+                    <style>@keyframes shimmer {{ 0% {{ background-position: -200% 0; }} 100% {{ background-position: 200% 0; }} }}</style>
+                    ''', unsafe_allow_html=True)
                 else:
                     st.markdown('<div style="aspect-ratio:2/3;background:linear-gradient(135deg,#252525,#1a1a1a);display:flex;align-items:center;justify-content:center;color:#444;font-size:1.5rem;border-radius:6px;">🎬</div>', unsafe_allow_html=True)
 
-                if st.button("▶", key=f"{key_prefix}_{r}_{c}_{idx}_{tmdb_id}", help=f"View {title}"):
+                if st.button("▶ View", key=f"{key_prefix}_{r}_{c}_{idx}_{tmdb_id}", help=f"View {title}", use_container_width=True):
                     if tmdb_id:
                         goto_details(tmdb_id)
 
