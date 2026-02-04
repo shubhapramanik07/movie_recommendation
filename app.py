@@ -287,8 +287,14 @@ if "view" not in st.session_state:
 if "selected_tmdb_id" not in st.session_state:
     st.session_state.selected_tmdb_id = None
 
-qp_view = st.query_params.get("view")
-qp_id = st.query_params.get("id")
+# Safe query params reading
+try:
+    qp_view = st.query_params.get("view")
+    qp_id = st.query_params.get("id")
+except Exception:
+    qp_view = None
+    qp_id = None
+
 if qp_view in ("home", "details"):
     st.session_state.view = qp_view
 if qp_id:
@@ -301,17 +307,22 @@ if qp_id:
 
 def goto_home():
     st.session_state.view = "home"
-    st.query_params["view"] = "home"
-    if "id" in st.query_params:
-        del st.query_params["id"]
+    try:
+        st.query_params.clear()
+        st.query_params["view"] = "home"
+    except Exception:
+        pass
     st.rerun()
 
 
 def goto_details(tmdb_id: int):
     st.session_state.view = "details"
     st.session_state.selected_tmdb_id = int(tmdb_id)
-    st.query_params["view"] = "details"
-    st.query_params["id"] = str(int(tmdb_id))
+    try:
+        st.query_params["view"] = "details"
+        st.query_params["id"] = str(int(tmdb_id))
+    except Exception:
+        pass
     st.rerun()
 
 
