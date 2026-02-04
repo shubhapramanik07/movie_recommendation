@@ -45,22 +45,11 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 /* Netflix black background */
 .stApp { background: #141414; }
 
-/* Hide sidebar on mobile */
-@media (max-width: 768px) {
-    [data-testid="stSidebar"] { display: none !important; }
-    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
-}
-
-/* Sidebar styling - Netflix dark */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #000000 0%, #141414 100%);
-    border-right: 1px solid #333;
-}
-[data-testid="stSidebar"] .stMarkdown { color: #e5e5e5; }
-[data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { 
-    color: #e50914;
-    font-weight: 700;
-}
+/* Hide sidebar completely */
+[data-testid="stSidebar"] { display: none !important; }
+[data-testid="stSidebarCollapsedControl"] { display: none !important; }
+section[data-testid="stSidebar"] { display: none !important; }
+button[kind="header"] { display: none !important; }
 
 /* ========== LOGO ========== */
 .netflix-logo {
@@ -615,49 +604,8 @@ def parse_tmdb_search_to_cards(data, keyword: str, limit: int = 24):
     return suggestions, cards
 
 
-# =============================
-# SIDEBAR (Netflix Style) - Toggle Menu
-# =============================
-with st.sidebar:
-    st.markdown("""
-    <div class="brand-header">
-        <div class="brand-title">🎬 FLICKPICK</div>
-        <div style="color:#808080;font-size:0.8rem;margin-top:0.5rem;">Unlimited movies, endless discovery</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("🏠 Home", use_container_width=True):
-        goto_home()
-
-    st.markdown("")
-    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;">📂 Browse Categories</p>', unsafe_allow_html=True)
-    
-    category_labels = {
-        "trending": "🔥 Trending Now",
-        "popular": "⭐ Popular on FlickPick",
-        "top_rated": "🏆 Top 10 Today",
-        "now_playing": "🆕 New Releases",
-        "upcoming": "📅 Coming This Week"
-    }
-    home_category = st.selectbox(
-        "Category",
-        list(category_labels.keys()),
-        format_func=lambda x: category_labels[x],
-        index=0,
-        label_visibility="collapsed"
-    )
-    
-    st.markdown("---")
-    st.markdown('<p style="color:#e50914;font-weight:700;margin-bottom:0.5rem;">⚙️ Display Settings</p>', unsafe_allow_html=True)
-    grid_cols = st.slider("Grid columns", 4, 8, 6, label_visibility="collapsed")
-    
-    st.markdown("---")
-    st.markdown("""
-    <div style="padding:1rem 0;">
-        <div style="color:#808080;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Powered by</div>
-        <div style="color:#e5e5e5;font-size:0.85rem;margin-top:0.25rem;">TMDB • TF-IDF AI</div>
-    </div>
-    """, unsafe_allow_html=True)
+# Default grid columns
+grid_cols = 6
 
 # =============================
 # FLOATING TOGGLE MENU (Netflix Style)
@@ -806,8 +754,6 @@ if st.session_state.menu_open:
             st.session_state.quick_category = "upcoming"
             st.session_state.menu_open = False
             st.rerun()
-    
-    st.markdown("")
 
 # Sync quick category with sidebar category
 if "quick_category" in st.session_state and st.session_state.quick_category:
@@ -820,8 +766,6 @@ if st.session_state.view == "home":
     typed = st.text_input(
         "Search", placeholder="🔍 Search for titles, genres, people...", label_visibility="collapsed"
     )
-
-    st.markdown("")
 
     # SEARCH MODE (Autocomplete + word-match results)
     if typed.strip():
